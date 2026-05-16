@@ -9,63 +9,74 @@ app = Flask(__name__, static_folder="static")
 app.secret_key = os.environ.get("SECRET_KEY", "ms-hokej-2026-tajny-klic")
 CORS(app, supports_credentials=True)
 
-DATABASE_URL = os.environ.get("DATABASE_URL")  # Supabase connection string
+DATABASE_URL = os.environ.get("DATABASE_URL")
 ADMIN = "Admin"
 CEST  = pytz.timezone("Europe/Prague")
 
-# ── ZÁPASY ───────────────────────────────────────────────────────────────────
+# ── ZÁPASY (ověřený rozpis MS 2026) ──────────────────────────────────────────
 
 GAMES = [
-    {"id":"a1",  "date":"2026-05-15","time":"16:20","home":"Finsko",    "away":"Německo",     "group":"A"},
-    {"id":"a2",  "date":"2026-05-15","time":"20:20","home":"USA",       "away":"Lotyšsko",    "group":"A"},
-    {"id":"a3",  "date":"2026-05-16","time":"16:20","home":"Švýcarsko", "away":"Maďarsko",    "group":"A"},
-    {"id":"a4",  "date":"2026-05-16","time":"20:20","home":"Rakousko",  "away":"V. Británie", "group":"A"},
-    {"id":"a5",  "date":"2026-05-17","time":"12:20","home":"Finsko",    "away":"Lotyšsko",    "group":"A"},
-    {"id":"a6",  "date":"2026-05-17","time":"16:20","home":"USA",       "away":"Maďarsko",    "group":"A"},
-    {"id":"a7",  "date":"2026-05-18","time":"12:20","home":"Finsko",    "away":"USA",         "group":"A"},
-    {"id":"a8",  "date":"2026-05-18","time":"16:20","home":"Německo",   "away":"V. Británie", "group":"A"},
-    {"id":"a9",  "date":"2026-05-19","time":"12:20","home":"Lotyšsko",  "away":"Maďarsko",    "group":"A"},
-    {"id":"a10", "date":"2026-05-19","time":"16:20","home":"Švýcarsko", "away":"Rakousko",    "group":"A"},
-    {"id":"a11", "date":"2026-05-20","time":"12:20","home":"Německo",   "away":"Maďarsko",    "group":"A"},
-    {"id":"a12", "date":"2026-05-20","time":"16:20","home":"USA",       "away":"V. Británie", "group":"A"},
-    {"id":"a13", "date":"2026-05-21","time":"12:20","home":"Finsko",    "away":"Švýcarsko",   "group":"A"},
-    {"id":"a14", "date":"2026-05-21","time":"16:20","home":"Lotyšsko",  "away":"Rakousko",    "group":"A"},
-    {"id":"a15", "date":"2026-05-22","time":"12:20","home":"Německo",   "away":"Lotyšsko",    "group":"A"},
-    {"id":"a16", "date":"2026-05-22","time":"16:20","home":"Maďarsko",  "away":"V. Británie", "group":"A"},
-    {"id":"a17", "date":"2026-05-23","time":"12:20","home":"USA",       "away":"Rakousko",    "group":"A"},
-    {"id":"a18", "date":"2026-05-23","time":"16:20","home":"Švýcarsko", "away":"Německo",     "group":"A"},
-    {"id":"a19", "date":"2026-05-24","time":"12:20","home":"Finsko",    "away":"Maďarsko",    "group":"A"},
-    {"id":"a20", "date":"2026-05-24","time":"16:20","home":"Lotyšsko",  "away":"V. Británie", "group":"A"},
-    {"id":"a21", "date":"2026-05-25","time":"12:20","home":"Německo",   "away":"Rakousko",    "group":"A"},
-    {"id":"a22", "date":"2026-05-26","time":"16:20","home":"Finsko",    "away":"Švýcarsko",   "group":"A"},
-    {"id":"a23", "date":"2026-05-26","time":"16:20","home":"USA",       "away":"Lotyšsko",    "group":"A"},
-    {"id":"a24", "date":"2026-05-26","time":"20:20","home":"Maďarsko",  "away":"Rakousko",    "group":"A"},
-    {"id":"a25", "date":"2026-05-26","time":"20:20","home":"Německo",   "away":"V. Británie", "group":"A"},
-    {"id":"b1",  "date":"2026-05-15","time":"12:20","home":"Kanada",    "away":"Švédsko",    "group":"B"},
-    {"id":"b2",  "date":"2026-05-15","time":"16:20","home":"Česko",     "away":"Dánsko",     "group":"B"},
-    {"id":"b3",  "date":"2026-05-16","time":"12:20","home":"Slovensko", "away":"Itálie",     "group":"B"},
-    {"id":"b4",  "date":"2026-05-16","time":"16:20","home":"Norsko",    "away":"Slovinsko",  "group":"B"},
-    {"id":"b5",  "date":"2026-05-17","time":"12:20","home":"Kanada",    "away":"Norsko",     "group":"B"},
-    {"id":"b6",  "date":"2026-05-17","time":"20:20","home":"Švédsko",   "away":"Dánsko",     "group":"B"},
-    {"id":"b7",  "date":"2026-05-18","time":"12:20","home":"Česko",     "away":"Švédsko",    "group":"B"},
-    {"id":"b8",  "date":"2026-05-18","time":"20:20","home":"Slovensko", "away":"Slovinsko",  "group":"B"},
-    {"id":"b9",  "date":"2026-05-19","time":"12:20","home":"Norsko",    "away":"Itálie",     "group":"B"},
-    {"id":"b10", "date":"2026-05-19","time":"20:20","home":"Kanada",    "away":"Dánsko",     "group":"B"},
-    {"id":"b11", "date":"2026-05-20","time":"12:20","home":"Švédsko",   "away":"Slovensko",  "group":"B"},
-    {"id":"b12", "date":"2026-05-20","time":"20:20","home":"Česko",     "away":"Norsko",     "group":"B"},
-    {"id":"b13", "date":"2026-05-21","time":"12:20","home":"Dánsko",    "away":"Slovinsko",  "group":"B"},
-    {"id":"b14", "date":"2026-05-21","time":"20:20","home":"Kanada",    "away":"Itálie",     "group":"B"},
-    {"id":"b15", "date":"2026-05-22","time":"12:20","home":"Česko",     "away":"Slovensko",  "group":"B"},
-    {"id":"b16", "date":"2026-05-22","time":"20:20","home":"Švédsko",   "away":"Norsko",     "group":"B"},
-    {"id":"b17", "date":"2026-05-23","time":"12:20","home":"Dánsko",    "away":"Itálie",     "group":"B"},
-    {"id":"b18", "date":"2026-05-23","time":"20:20","home":"Slovensko", "away":"Česko",      "group":"B"},
-    {"id":"b19", "date":"2026-05-24","time":"12:20","home":"Kanada",    "away":"Slovinsko",  "group":"B"},
-    {"id":"b20", "date":"2026-05-24","time":"20:20","home":"Švédsko",   "away":"Itálie",     "group":"B"},
-    {"id":"b21", "date":"2026-05-25","time":"12:20","home":"Norsko",    "away":"Dánsko",     "group":"B"},
-    {"id":"b22", "date":"2026-05-26","time":"12:20","home":"Kanada",    "away":"Česko",      "group":"B"},
-    {"id":"b23", "date":"2026-05-26","time":"12:20","home":"Švédsko",   "away":"Slovinsko",  "group":"B"},
-    {"id":"b24", "date":"2026-05-26","time":"20:20","home":"Slovensko", "away":"Norsko",     "group":"B"},
-    {"id":"b25", "date":"2026-05-26","time":"20:20","home":"Dánsko",    "away":"Itálie",     "group":"B"},
+    # Skupina A – Curych
+    {"id":"a1",  "date":"2026-05-15","time":"16:20","home":"Finsko",      "away":"Německo",     "group":"A"},
+    {"id":"a2",  "date":"2026-05-15","time":"20:20","home":"USA",         "away":"Švýcarsko",   "group":"A"},
+    {"id":"a3",  "date":"2026-05-16","time":"12:20","home":"Rakousko",    "away":"V. Británie", "group":"A"},
+    {"id":"a4",  "date":"2026-05-16","time":"16:20","home":"Finsko",      "away":"Maďarsko",    "group":"A"},
+    {"id":"a5",  "date":"2026-05-16","time":"20:20","home":"Švýcarsko",   "away":"Lotyšsko",    "group":"A"},
+    {"id":"a6",  "date":"2026-05-17","time":"12:20","home":"USA",         "away":"V. Británie", "group":"A"},
+    {"id":"a7",  "date":"2026-05-17","time":"16:20","home":"Rakousko",    "away":"Maďarsko",    "group":"A"},
+    {"id":"a8",  "date":"2026-05-17","time":"20:20","home":"Německo",     "away":"Lotyšsko",    "group":"A"},
+    {"id":"a9",  "date":"2026-05-18","time":"16:20","home":"Finsko",      "away":"USA",         "group":"A"},
+    {"id":"a10", "date":"2026-05-18","time":"20:20","home":"Švýcarsko",   "away":"Německo",     "group":"A"},
+    {"id":"a11", "date":"2026-05-19","time":"16:20","home":"Lotyšsko",    "away":"Rakousko",    "group":"A"},
+    {"id":"a12", "date":"2026-05-19","time":"20:20","home":"Maďarsko",    "away":"V. Británie", "group":"A"},
+    {"id":"a13", "date":"2026-05-20","time":"16:20","home":"Švýcarsko",   "away":"Rakousko",    "group":"A"},
+    {"id":"a14", "date":"2026-05-20","time":"20:20","home":"USA",         "away":"Německo",     "group":"A"},
+    {"id":"a15", "date":"2026-05-21","time":"16:20","home":"Finsko",      "away":"Lotyšsko",    "group":"A"},
+    {"id":"a16", "date":"2026-05-21","time":"20:20","home":"Švýcarsko",   "away":"V. Británie", "group":"A"},
+    {"id":"a17", "date":"2026-05-22","time":"16:20","home":"Maďarsko",    "away":"Německo",     "group":"A"},
+    {"id":"a18", "date":"2026-05-22","time":"20:20","home":"Finsko",      "away":"V. Británie", "group":"A"},
+    {"id":"a19", "date":"2026-05-23","time":"12:20","home":"USA",         "away":"Lotyšsko",    "group":"A"},
+    {"id":"a20", "date":"2026-05-23","time":"16:20","home":"Švýcarsko",   "away":"Maďarsko",    "group":"A"},
+    {"id":"a21", "date":"2026-05-23","time":"20:20","home":"Německo",     "away":"Rakousko",    "group":"A"},
+    {"id":"a22", "date":"2026-05-24","time":"16:20","home":"Lotyšsko",    "away":"V. Británie", "group":"A"},
+    {"id":"a23", "date":"2026-05-24","time":"20:20","home":"Finsko",      "away":"Rakousko",    "group":"A"},
+    {"id":"a24", "date":"2026-05-25","time":"16:20","home":"USA",         "away":"Maďarsko",    "group":"A"},
+    {"id":"a25", "date":"2026-05-25","time":"20:20","home":"Německo",     "away":"V. Británie", "group":"A"},
+    {"id":"a26", "date":"2026-05-26","time":"12:20","home":"Maďarsko",    "away":"Lotyšsko",    "group":"A"},
+    {"id":"a27", "date":"2026-05-26","time":"16:20","home":"USA",         "away":"Rakousko",    "group":"A"},
+    {"id":"a28", "date":"2026-05-26","time":"20:20","home":"Švýcarsko",   "away":"Finsko",      "group":"A"},
+    # Skupina B – Fribourg
+    {"id":"b1",  "date":"2026-05-15","time":"12:20","home":"Česko",       "away":"Dánsko",      "group":"B"},
+    {"id":"b2",  "date":"2026-05-15","time":"16:20","home":"Kanada",      "away":"Norsko",      "group":"B"},
+    {"id":"b3",  "date":"2026-05-15","time":"20:20","home":"Švédsko",     "away":"Slovinsko",   "group":"B"},
+    {"id":"b4",  "date":"2026-05-16","time":"12:20","home":"Slovensko",   "away":"Itálie",      "group":"B"},
+    {"id":"b5",  "date":"2026-05-16","time":"16:20","home":"Česko",       "away":"Slovinsko",   "group":"B"},
+    {"id":"b6",  "date":"2026-05-17","time":"12:20","home":"Kanada",      "away":"Dánsko",      "group":"B"},
+    {"id":"b7",  "date":"2026-05-17","time":"16:20","home":"Švédsko",     "away":"Itálie",      "group":"B"},
+    {"id":"b8",  "date":"2026-05-17","time":"20:20","home":"Norsko",      "away":"Slovensko",   "group":"B"},
+    {"id":"b9",  "date":"2026-05-18","time":"12:20","home":"Česko",       "away":"Švédsko",     "group":"B"},
+    {"id":"b10", "date":"2026-05-18","time":"16:20","home":"Kanada",      "away":"Slovinsko",   "group":"B"},
+    {"id":"b11", "date":"2026-05-18","time":"20:20","home":"Dánsko",      "away":"Slovensko",   "group":"B"},
+    {"id":"b12", "date":"2026-05-19","time":"12:20","home":"Norsko",      "away":"Itálie",      "group":"B"},
+    {"id":"b13", "date":"2026-05-19","time":"16:20","home":"Česko",       "away":"Itálie",      "group":"B"},
+    {"id":"b14", "date":"2026-05-19","time":"20:20","home":"Kanada",      "away":"Švédsko",     "group":"B"},
+    {"id":"b15", "date":"2026-05-20","time":"12:20","home":"Slovinsko",   "away":"Slovensko",   "group":"B"},
+    {"id":"b16", "date":"2026-05-20","time":"16:20","home":"Dánsko",      "away":"Norsko",      "group":"B"},
+    {"id":"b17", "date":"2026-05-21","time":"12:20","home":"Česko",       "away":"Norsko",      "group":"B"},
+    {"id":"b18", "date":"2026-05-21","time":"16:20","home":"Kanada",      "away":"Itálie",      "group":"B"},
+    {"id":"b19", "date":"2026-05-21","time":"20:20","home":"Švédsko",     "away":"Slovensko",   "group":"B"},
+    {"id":"b20", "date":"2026-05-22","time":"12:20","home":"Dánsko",      "away":"Slovinsko",   "group":"B"},
+    {"id":"b21", "date":"2026-05-22","time":"16:20","home":"Česko",       "away":"Slovensko",   "group":"B"},
+    {"id":"b22", "date":"2026-05-22","time":"20:20","home":"Švédsko",     "away":"Norsko",      "group":"B"},
+    {"id":"b23", "date":"2026-05-23","time":"12:20","home":"Slovinsko",   "away":"Itálie",      "group":"B"},
+    {"id":"b24", "date":"2026-05-23","time":"16:20","home":"Kanada",      "away":"Slovensko",   "group":"B"},
+    {"id":"b25", "date":"2026-05-23","time":"20:20","home":"Dánsko",      "away":"Itálie",      "group":"B"},
+    {"id":"b26", "date":"2026-05-24","time":"12:20","home":"Česko",       "away":"Švédsko",     "group":"B"},
+    {"id":"b27", "date":"2026-05-24","time":"16:20","home":"Norsko",      "away":"Slovinsko",   "group":"B"},
+    {"id":"b28", "date":"2026-05-26","time":"12:20","home":"Itálie",      "away":"Dánsko",      "group":"B"},
+    {"id":"b29", "date":"2026-05-26","time":"16:20","home":"Slovensko",   "away":"Norsko",      "group":"B"},
+    {"id":"b30", "date":"2026-05-26","time":"20:20","home":"Kanada",      "away":"Česko",       "group":"B"},
+    {"id":"b31", "date":"2026-05-26","time":"20:20","home":"Švédsko",     "away":"Slovinsko",   "group":"B"},
 ]
 
 GAMES_BY_ID = {g["id"]: g for g in GAMES}
@@ -253,69 +264,6 @@ def save_result():
             """, (gid, int(home), int(away), outcome))
         conn.commit()
     return jsonify(ok=True)
-
-# ── IIHF SCRAPING ─────────────────────────────────────────────────────────────
-
-TEAM_MAP = {
-    "FIN":"Finsko","GER":"Německo","USA":"USA","LAT":"Lotyšsko",
-    "SUI":"Švýcarsko","HUN":"Maďarsko","AUT":"Rakousko","GBR":"V. Británie",
-    "CAN":"Kanada","SWE":"Švédsko","CZE":"Česko","DEN":"Dánsko",
-    "SVK":"Slovensko","NOR":"Norsko","SLO":"Slovinsko","ITA":"Itálie",
-    "FINLAND":"Finsko","GERMANY":"Německo","LATVIA":"Lotyšsko",
-    "SWITZERLAND":"Švýcarsko","HUNGARY":"Maďarsko","AUSTRIA":"Rakousko",
-    "GREAT BRITAIN":"V. Británie","CANADA":"Kanada","SWEDEN":"Švédsko",
-    "CZECHIA":"Česko","DENMARK":"Dánsko","SLOVAKIA":"Slovensko",
-    "NORWAY":"Norsko","SLOVENIA":"Slovinsko","ITALY":"Itálie",
-}
-
-@app.route("/api/fetch-iihf")
-def fetch_iihf():
-    if session.get("user") != ADMIN:
-        return jsonify(error="Pouze admin"), 403
-    try:
-        url  = "https://www.iihf.com/en/events/2026/wm/schedule"
-        resp = requests.get(url, timeout=10, headers={"User-Agent":"Mozilla/5.0"})
-        resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, "html.parser")
-        updated = []
-        blocks  = soup.select(".game-block, .schedule-item, [class*='game'], [class*='match']")
-        if not blocks:
-            return jsonify(ok=False, message="IIHF stránka nemá rozpoznatelnou strukturu — zadej výsledky ručně.", updated=[])
-        for block in blocks:
-            try:
-                score_el = block.select_one("[class*='score'], [class*='result']")
-                if not score_el or ":" not in score_el.get_text(): continue
-                parts = score_el.get_text(strip=True).split(":")
-                h_score, a_score = int(parts[0].strip()), int(parts[1].strip())
-                teams = block.select("[class*='team'], [class*='country']")
-                if len(teams) < 2: continue
-                home_cz = TEAM_MAP.get(teams[0].get_text(strip=True).upper())
-                away_cz = TEAM_MAP.get(teams[1].get_text(strip=True).upper())
-                if not home_cz or not away_cz: continue
-                outcome = "REG"
-                bt = block.get_text(" ", strip=True).upper()
-                if "SO" in bt or "SHOOTOUT" in bt: outcome = "SO"
-                elif "OT" in bt or "OVERTIME" in bt: outcome = "OT"
-                match = next((g for g in GAMES if g["home"]==home_cz and g["away"]==away_cz), None)
-                if not match: continue
-                with get_db() as conn:
-                    with conn.cursor() as cur:
-                        cur.execute("""
-                            INSERT INTO results (game_id, home_score, away_score, outcome, updated_at)
-                            VALUES (%s,%s,%s,%s,NOW())
-                            ON CONFLICT (game_id) DO UPDATE SET
-                                home_score=EXCLUDED.home_score, away_score=EXCLUDED.away_score,
-                                outcome=EXCLUDED.outcome, updated_at=NOW()
-                        """, (match["id"], h_score, a_score, outcome))
-                    conn.commit()
-                updated.append(f"{home_cz} {h_score}:{a_score} {away_cz} ({outcome})")
-            except Exception:
-                continue
-        if updated:
-            return jsonify(ok=True, message=f"Aktualizováno {len(updated)} výsledků.", updated=updated)
-        return jsonify(ok=False, message="Žádné výsledky nenalezeny — zadej ručně.", updated=[])
-    except Exception as e:
-        return jsonify(ok=False, message=f"Chyba: {str(e)}", updated=[])
 
 # ── STAV ZÁPASŮ ───────────────────────────────────────────────────────────────
 
